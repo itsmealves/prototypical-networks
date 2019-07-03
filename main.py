@@ -1,6 +1,20 @@
+import argparse
 import torch
 from torch import nn
 import torch.nn.functional as F
+from torchvision import transforms
+from torch.utils.data import DataLoader
+from data.datasets import EpisodeDataset
+
+parser = argparse.ArgumentParser()
+parser.add_argument('root', help='Root directory containing images splits and classes.txt')
+
+args = parser.parse_args()
+
+transform = transforms.Compose([
+	transforms.Resize((224, 224)),
+	transforms.ToTensor()
+])
 
 
 class ConvolutionalBlock(nn.Module):
@@ -39,6 +53,10 @@ class PrototypicalNetwork(nn.Module):
 		y = self.__body(x)
 		return y.view(x.size(0), -1)
 
-x = torch.zeros((8, 3, 28, 28))
 model = PrototypicalNetwork(3)
-print(model(x).size())
+
+dataset = EpisodeDataset(args.root, 1, 5, transform=transform)
+loader = DataLoader(dataset)
+
+for x, y in loader:
+	pass
